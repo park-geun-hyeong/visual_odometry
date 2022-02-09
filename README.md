@@ -1,3 +1,3 @@
 ## visualslam
 - this is for visual slam using ubuntu
-- orbslam
+- orbslam2
