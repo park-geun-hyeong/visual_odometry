@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import cv2
+import time
 
 
 # poses.txt의 한 줄 구조는 r11 r12 r13 tx r21 r22 r23 ty r31 r32 r33 tz
