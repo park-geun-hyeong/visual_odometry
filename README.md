@@ -1,3 +1,3 @@
 ## visualslam
-- this is for visual slam using ubuntu
+- Visual slam & Visual odometry
 - orbslam2
