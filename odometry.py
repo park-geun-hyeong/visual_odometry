@@ -1,47 +1,53 @@
-import math
 import numpy as np
+import matplotlib.pyplot as plt
+import os
 import cv2
-import time
+import math
+import warnings
+warnings.filterwarnings('ignore')
+
+from tqdm import tqdm
+
+from RMSE import T_RMSE
+from RMSE import R_RMSE
+
+def visual_odometry(ours, gt):
+    T_idx = [3,7,11]
+    traj = np.zeros((1000,2000),dtype=np.uint8)
+    traj = cv2.cvtColor(traj,cv2.COLOR_GRAY2BGR)
+    img = traj.copy()
+    textOrg1 = (10,30)
+    textOrg2 = (10,80)
+    textOrg3 = (10,100)
+
+    for i in range(len(ours)):
+        x = int(ours[i][3]) + 1000
+        y = int(ours[i][11]) + 100
+
+        gt_x = int(gt[i][3]) + 1000
+        gt_y = int(gt[i][11]) + 100
+
+        cv2.circle(img, (x,y), 1 , (0,0,255), 2)
+        cv2.circle(img, (gt_x, gt_y), 1 , (0,255,0), 2)
 
 
-# poses.txt의 한 줄 구조는 r11 r12 r13 tx r21 r22 r23 ty r31 r32 r33 tz
-all = set(i for i in range(12))
-T_idx = {3,7,11}
-R_idx = all - T_idx
-
-def T_RMSE(ground_truth, our):
-
-    SUM = 0
+    t_rmse = T_RMSE(gt, ours)
+    r_rmse = R_RMSE(gt, ours)
     
-    for g,o in zip(ground_truth, our):
-        g_t = [g[i] for i in list(T_idx)]
-        o_t = [o[i] for i in list(T_idx)]
-        SUM += np.sqrt(np.sum((np.array(g_t) - np.array(o_t))**2)/3)
+    text = f"Translation Error: {t_rmse:.6f}, Rotation Error: {r_rmse:.6f}"  
+    cv2.putText(img, text, textOrg1, cv2.FONT_HERSHEY_PLAIN,1, (255,255),1,8)
     
-    return SUM
+    cv2.putText(img, "Ground Truth: ", textOrg2, cv2.FONT_HERSHEY_PLAIN,1, (255,255),1,8)
+    cv2.line(img, (135,75), (165,75), (0,255,0), 2)
+    cv2.putText(img, "Ours: ", textOrg3, cv2.FONT_HERSHEY_PLAIN,1, (255,255),1,8)
+    cv2.line(img, (135,95), (165,95), (0,0,255), 2)
 
-
-def R_RMSE(ground_truth, our):
-
-    SUM = 0
-    
-    for g,o in zip(ground_truth, our):
-        g_t = [g[i] for i in list(R_idx)]
-        o_t = [o[i] for i in list(R_idx)]
-        SUM += np.sqrt(np.sum((np.array(g_t) - np.array(o_t))**2)/9)
-    
-    return SUM
-
-def all_RMSE(ground_truth, our):
-
-    SUM = 0    
-    for g,o in zip(ground_truth, our):
-        SUM += np.sqrt(np.sum((np.array(g) - np.array(o))**2)/len(g))
-    
-    return SUM
-
+    cv2.imshow("trajectory", img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
+
     ground_truth = "../ORB_SLAM2/dataset/poses/00.txt"
     our = "../ORB_SLAM2/seq00_stereo/CameraTrajectory.txt"
 
@@ -65,11 +71,7 @@ if __name__ == "__main__":
                 ours.append(l)
             else:
                 break
+
     
-    print(len(gt), len(ours))
-  
-    t_rmse = T_RMSE(gt, ours)
-    r_rmse = R_RMSE(gt, ours)
-    print(f"T_RMSE : {t_rmse:.6f}")
-    print(f"R_RMSE : {r_rmse:.6f}")
+    visual_odometry(ours, gt)
     
