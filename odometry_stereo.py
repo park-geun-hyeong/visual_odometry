@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -51,6 +52,8 @@ if __name__ == "__main__":
     ground_truth = "../ORB_SLAM2/dataset/poses/00.txt"
     our = "../ORB_SLAM2/seq00_stereo/CameraTrajectory.txt"
 
+    #ground_truth = sys.argv[1]
+    #our = sys.argv[2]
     
     with open(ground_truth, 'r') as f:
         gt = []         
@@ -61,7 +64,7 @@ if __name__ == "__main__":
                 gt.append(l)
             else:
                 break
-
+    
     with open(our, 'r') as f:
         ours = []         
         while True:
@@ -72,6 +75,6 @@ if __name__ == "__main__":
             else:
                 break
 
-    
+    print(max(i[3] for i in ours))
     visual_odometry(ours, gt)
     
